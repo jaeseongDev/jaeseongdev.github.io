@@ -1,8 +1,3 @@
-## Github Blog
-- 이 블로그는 [변성윤](https://github.com/zzsza/zzsza.github.io)님 블로그 테마를 기반으로 제작되었습니다
-- 본 테마를 사용하고 싶으신 경우, issue 또는 메일([snugyun01@gmail.com](snugyun01@gmail.com))로 사용 요청을 해주세요. 이 블로그의 소스는 성윤님의 피와 땀으로 만들었기 때문에 요청을 주시는 것이 예의라고 생각합니다 :)
-
-
 ### Structure
 - 다른 분들이 이 테마를 Fork할 경우, 사용할 수 있도록 블로그 구조에 대해 설명합니다
 
@@ -51,3 +46,16 @@ bundle exec jekyll serve
 - ```_featured_categories```, ```_featured_tags``` 설정한 후, ```_posts```에 글을 작성합니다
 - 글 제목 형태는 ```2018-01-03-title1.md``` 이런 방식처럼 작성! 날짜를 빼고 쓰면 반영되지 않습니다
 
+### Commit 메시지 형태
+**기능 관련**
+- ```feat : ...``` : 새로운 기능 추가
+- ```fix : ...``` : 버그 수정
+- ```docs : ...``` : Readme 수정
+
+**글, 문구 관련**
+- ```post : ...``` : 새로운 글 작성
+- ```modify : ...``` : 글, 문구 수정
+
+## Github Blog
+- 이 블로그는 [변성윤](https://github.com/zzsza/zzsza.github.io)님 블로그 테마를 기반으로 제작되었습니다
+- 본 테마를 사용하고 싶으신 경우, issue 또는 메일([snugyun01@gmail.com](snugyun01@gmail.com))로 사용 요청을 해주세요. 이 블로그의 소스는 성윤님의 피와 땀으로 만들었기 때문에 요청을 주시는 것이 예의라고 생각합니다 :)
