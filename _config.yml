@@ -18,7 +18,7 @@ tagline:             Backend Developer
 # A short description of the page, used in the sidebar and as fallback for the meta description tag.
 # Markdown enabled, but don't use more than one paragraph (enforced by `>`)
 description:         >
-  꾸준하게 착하게 행복하게
+  꾸준하게 떳떳하게 행복하게
 
 # This should be the same author as first entry in `_data/authors.yml`
 author:
