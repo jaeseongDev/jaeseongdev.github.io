@@ -4,7 +4,7 @@ title:  "Gradle에서 Junit5 셋팅하는 방법"
 subtitle: "Gradle에서 Junit5 셋팅하는 방법"
 categories: development
 tags: java
-comments: true
+comments: false
 ---
 ### 0. 사전 셋팅
 
@@ -18,7 +18,7 @@ comments: true
 
 **추가할 코드**
 
-```java
+```
 test {
     useJUnitPlatform()
 }
@@ -31,7 +31,7 @@ dependencies {
 
 **build.gradle**
 
-```java
+```
 plugins {
     id 'java'
 }
