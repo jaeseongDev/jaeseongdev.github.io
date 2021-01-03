@@ -1,7 +1,7 @@
 ---
 layout: tag-blog
-title: Book
-slug: book
+title: Diary
+slug: diary
 category: etc
 menu: false
 order: 2
