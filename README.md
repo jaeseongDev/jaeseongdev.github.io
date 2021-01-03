@@ -49,12 +49,12 @@ bundle exec jekyll serve
 ### Commit 메시지 형태
 **기능 관련**
 - ```feat : ...``` : 새로운 기능 추가
-- ```fix : ...``` : 버그 수정
+- ```fix : ...``` : 기능, 버그 수정
 - ```docs : ...``` : Readme 수정
 
-**글, 문구 관련**
+**글, 문구, 메뉴 관련**
 - ```post : ...``` : 새로운 글 작성
-- ```modify : ...``` : 글, 문구 수정
+- ```modify : ...``` : 글, 문구, 메뉴 수정
 
 ## Github Blog
 - 이 블로그는 [변성윤](https://github.com/zzsza/zzsza.github.io)님 블로그 테마를 기반으로 제작되었습니다
