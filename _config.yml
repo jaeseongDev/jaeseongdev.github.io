@@ -37,7 +37,7 @@ font:                "'Lato', 'Sans-serif'"
 
 # The string encoding what fonts to fetch from Google Fonts.
 # See: https://qwtel.com/hydejack/docs/configuration/
-google_fonts:        Lato
+google_fonts:        Lato:wght@400;700
 
 # If you do not use a Google Fonts, uncomment the line below
 # no_google_fonts:     true
