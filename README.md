@@ -51,6 +51,27 @@ bundle exec jekyll serve
 ### 글 작성
 - ```_featured_categories```, ```_featured_tags``` 설정한 후, ```_posts```에 글을 작성합니다
 - 글 제목 형태는 ```2018-01-03-title1.md``` 이런 방식처럼 작성! 날짜를 빼고 쓰면 반영되지 않습니다
+- 코드에 빨간 색으로 Highlihgting을 하고 싶은 경우, md 파일 내에 밑과 같이 코드를 작성하면 된다. 
+```
+---
+layout: post
+title:  "첫 글"
+subtitle: "첫 글"
+categories: etc
+tags: diary
+comments: true
+---
+
+(일반적인 마크다운 코드 작성)
+
+{% include code-block.html content=
+"<span style='color:red !important'>빨간색을 적용하고 싶은 코드의 줄</span>
+일반 코드를 작성하고 싶은 코드의 줄
+일반 코드를 작성하고 싶은 코드의 줄"
+%}
+
+(일반적인 마크다운 코드 작성)
+```
 
 ### Commit 메시지 형태
 **기능 관련**
