@@ -62,6 +62,11 @@ bundle exec jekyll serve
 - ```post : ...``` : 새로운 글 작성
 - ```modify : ...``` : 글, 문구, 메뉴 수정
 
-## Github Blog
+### Github Blog
 - 이 블로그는 [변성윤](https://github.com/zzsza/zzsza.github.io), [박민](https://github.com/isme2n/isme2n.github.io)님 블로그 테마를 기반으로 제작되었습니다
 - 본 테마를 사용하고 싶으신 경우, issue 또는 메일([qkrwotjd1445@naver.com](qkrwotjd1445@naver.com))로 사용 요청을 해주세요:)
+
+---
+### 추가할 기능
+- disqus의 비정상 작동으로 인해, Facebook 댓글 기능으로 변경
+- Google 애드센스 달기
