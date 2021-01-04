@@ -1,3 +1,9 @@
+### Feature
+- [구글 애널리틱스](https://analytics.google.com/analytics/web/?hl=ko&pli=1) (유저 데이터 분석용)
+- [댓글 기능](https://blog.disqus.com/)
+- [구글 검색 엔진 트래킹](https://search.google.com/search-console/about)
+- [네이버 검색 엔진 트래킹](https://searchadvisor.naver.com/)
+
 ### Structure
 - 다른 분들이 이 테마를 Fork할 경우, 사용할 수 있도록 블로그 구조에 대해 설명합니다
 
@@ -57,5 +63,5 @@ bundle exec jekyll serve
 - ```modify : ...``` : 글, 문구, 메뉴 수정
 
 ## Github Blog
-- 이 블로그는 [변성윤](https://github.com/zzsza/zzsza.github.io)님 블로그 테마를 기반으로 제작되었습니다
-- 본 테마를 사용하고 싶으신 경우, issue 또는 메일([snugyun01@gmail.com](snugyun01@gmail.com))로 사용 요청을 해주세요. 이 블로그의 소스는 성윤님의 피와 땀으로 만들었기 때문에 요청을 주시는 것이 예의라고 생각합니다 :)
+- 이 블로그는 [변성윤](https://github.com/zzsza/zzsza.github.io), [박민](https://github.com/isme2n/isme2n.github.io)님 블로그 테마를 기반으로 제작되었습니다
+- 본 테마를 사용하고 싶으신 경우, issue 또는 메일([qkrwotjd1445@naver.com](qkrwotjd1445@naver.com))로 사용 요청을 해주세요:)
