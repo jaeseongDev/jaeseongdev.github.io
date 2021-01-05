@@ -3,6 +3,7 @@
 - [댓글 기능](https://blog.disqus.com/)
 - [구글 검색 엔진 트래킹](https://search.google.com/search-console/about)
 - [네이버 검색 엔진 트래킹](https://searchadvisor.naver.com/)
+- [구글 애드센스](https://www.google.com/adsense)
 
 ### Structure
 - 다른 분들이 이 테마를 Fork할 경우, 사용할 수 있도록 블로그 구조에 대해 설명합니다
