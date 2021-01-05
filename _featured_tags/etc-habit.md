@@ -4,5 +4,5 @@ title: Habit
 slug: habit
 category: etc
 menu: false
-order: 3
+order: 2
 ---
