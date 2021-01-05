@@ -1,0 +1,442 @@
+---
+layout: post
+title:  "[이펙티브 자바 / 예제 코드 추가] 아이템 1. 생성자 대신 정적 팩토리 메소드를 고려해라."
+subtitle: "[이펙티브 자바 / 예제 코드 추가] 아이템 1. 생성자 대신 정적 팩토리 메소드를 고려해라."
+categories: development
+tags: java
+comments: true
+---
+
+객체를 생성 할 때 일반적으로 사용하는 방법은 '**public 생성자**'를 활용하는 것이다. 하지만 '생성자'를 사용하는 것 이외에도 '**정적 팩토리 메서드(static factory method)**'를 사용해서 만들 수 있다. 
+
+> 먼저 객체를 생성하는 방법 2가지를 예시를 통해 알아보자.
+
+### '**public 생성자'를 활용해 객체 생성하기**
+
+```java
+public class Character {
+    protected int intelligence, strength, hitPoint, magicPoint;
+
+    // public 생성자
+    public Character(int intelligence, int strength, int hitPoint, int magicPoint) {
+        this.intelligence = intelligence;   // 지능
+        this.strength = strength;           // 힘
+        this.hitPoint = hitPoint;           // HP
+        this.magicPoint = magicPoint;       // MP
+    }
+}
+```
+
+```java
+public class Mage extends Character {
+    // public 생성자
+    public Mage() {
+        super(15, 5, 10, 15);
+    }
+}
+```
+
+```java
+public class Warrior extends Character {
+    // public 생성자
+    public Warrior() {
+        super(5, 15, 20, 3);
+    }
+}
+```
+
+### **'정적 팩토리 메서드(static factory method)'를 활용해 객체 생성하기**
+
+'**정적 팩토리 메서드(static factory method)**'라는 이름에서 알 수 있다시피, `static method`를 활용해 객체(인스턴스)를 생성 (`factory` : 공장, 무언가를 만드는 곳)하는 것을 의미한다. ([이처럼 용어 자체를 보고 의미를 유추할 수 있게 되면 개념에 대한 이해가 조금 더 쉬워지고, 기억에도 오래 남게 된다.](https://jaeseongdev.github.io/how-to-study/2021/01/05/should-make-sense-vocabulary/))
+
+```java
+public class Character {
+
+    private int intelligence, strength, hitPoint, magicPoint;
+
+    private Character(int intelligence, int strength, int hitPoint, int magicPoint) {
+        this.intelligence = intelligence;   // 지능
+        this.strength = strength;           // 힘
+        this.hitPoint = hitPoint;           // HP
+        this.magicPoint = magicPoint;       // MP
+    }
+
+    // '전사 캐릭터'를 생성하는 정적 팩토리 메소드
+    public static Character newWarrior() { // 
+        return new Character(5, 15, 20, 3);     // 인스턴스를 생성 후 반환
+    }
+
+    // '마법사 캐릭터'를 생성하는 정적 팩토리 메소드
+    public static Character newMage() {
+        return new Character(15, 5, 10, 15);    // 인스턴스를 생성 후 반환
+    }
+}
+```
+
+> 그런데 왜 생성자 대신 정적 팩토리 메서드를 사용하라고 하는 것일까? 정적 팩토리 메서드가 가지고 있는 장점들 때문이다. 그 장점들에 대해서 살펴보자.
+
+# 정적 팩토리 메서드가 생성자보다 좋은 장점
+
+## 1. 이름을 가질 수 있다.
+
+### 예 1)
+
+```java
+Character warrior = new Character(5, 15, 20, 3);
+Character mage = new Character(15, 5, 10, 15);
+```
+
+생성자에 넘기는 매개변수와 생성자 자체만으로는 반환될 객체의 특성을 제대로 설명하지 못한다. 만약 생성자를 사용해 전사나 마법사를 생성한다면 위와 같을 것이다. 즉, 위의 코드에서 변수명이 없었다면 `new Character(5, 15, 20, 3);`만 보고 `'전사 캐릭터'`임을 직관적으로 알 수가 없다. 이처럼 각 생성자가 어떤 역할을 하는지 정확히 기억하기 어려워 엉뚱한 것을 호출할 수 있다. 코드를 읽는 사람도 클래스 설명 문서를 찾아보지 않고는 의미를 알지 못할 것이다.
+
+```java
+Character warrior = Character.newWarrior();
+Character mage = Character.newMage();
+```
+
+하지만 정적 팩토리 메서드를 사용한다면 좀 더 읽기 쉬운 코드가 된다. 위처럼 정적 팩토리 메서드로 객체를 생성하게 되면, `newWarrior()`, `newMage()`와 같이 이름을 가지게 되므로 `'전사 캐릭터'`, `'마법사 캐릭터'`임을 직관적으로 알 수 있다. 
+
+### 예 2)
+
+객체는 생성 목적과 과정에 따라 생성자를 구별해서 사용할 필요가 있다. `new`라는 키워드를 통해 객체를 생성하는 생성자는 내부 구조를 잘 알고 있어야 목적에 맞게 객체를 생성할 수 있다. 하지만 정적 팩토리 메서드를 사용하면 메서드 이름에 객체의 생성 목적을 담아 낼 수 있다.
+
+다음 주어진 자동 로또와 수동 로또를 생성하는 팩토리 클래스의 일부 코드를 살펴보자.
+
+```java
+public class LottoFactory() {
+    private static final int LOTTO_SIZE = 6;
+    
+    private static List<LottoNumber> allLottoNumbers = ...; // 1~45까지의 로또 넘버
+	    
+    // 정적 팩토리 메서드
+    public static Lotto createAutoLotto() {
+        Collections.shuffle(allLottoNumbers);
+        return new Lotto(allLottoNumbers.stream()
+                .limit(LOTTO_SIZE)
+                .collect(Collectors.toList()));
+    }
+	
+    // 정적 팩토리 메서드
+    public static Lotto createManualLotto(List<LottoNumber> lottoNumbers) {
+        return new Lotto(lottoNumbers);
+    }
+    ...
+}
+```
+
+`createAutoLotto`와 `createMenualLotto` 모두 로또 객체를 생성하고 반환하는 정적 팩토리 메서드이다. 메서드의 이름만 보아도 로또 객체를 자동으로 생성하는지, 아니면 수동으로 생성하는지 단번에 이해할 수 있을 것이다. 이처럼 정적 팩토리 메서드를 사용하면 해당 생성의 목적을 이름에 표현할 수 있어 가독성이 좋아지는 효과가 있다.
+
+### 예 3) 숫자 야구 게임 (프리코스 1차 과제)
+
+```java
+public class BallsFactory {
+    private static final int START_NUMBER_IN_RANGE = 1;
+    private static final int END_NUMBER_IN_RANGE = 9;
+
+    // 정적 팩토리 메서드
+    public static Balls createBalls(String[] ballNumbers) {
+        List<Ball> balls = new ArrayList<>();
+        for (String ballNumber : ballNumbers) {
+            balls.add(new Ball(ballNumber));
+        }
+        return new Balls(balls);
+    }
+
+   // 정적 팩토리 메서드 
+    public static Balls createRandomBalls() {
+        List<Ball> randomNumbers = new ArrayList<>();
+        while (randomNumbers.size() != Balls.VALID_LENGTH_OF_BALLS) {
+            addRandomNumberTo(randomNumbers);
+        }
+        return new Balls(randomNumbers);
+    }
+
+    private static void addRandomNumberTo(List<Ball> randomNumbers) {
+        int randomNumber = RandomUtils.nextInt(START_NUMBER_IN_RANGE, END_NUMBER_IN_RANGE);
+        if (!randomNumbers.contains(randomNumber)) {
+            randomNumbers.add(new Ball(randomNumber));
+        }
+    }
+}
+```
+
+## 2. 호출될 때마다 인스턴스를 새로 생성하지는 않아도 된다.
+
+인스턴스를 미리 만들어 놓거나 새로 생성한 인스턴스를 캐싱하여 재활용하는 식으로 불필요한 객체 생성을 피할 수 있다. 따라서 (특히 생성 비용이 큰) 같은 객체가 자주 요청되는 상황이라면 성능을 상당히 끌어올려 준다.
+
+**[더 알아보기]**
+
+- (성능을 끌어주는 이유 더 찾아보기)
+- (static의 메모리 관련 처리 로직 알아보기)
+
+## 3. 반환 타입의 하위 타입 객체를 반환할 수 있는 능력이 있다.
+
+API를 만들 때 하위 타입 객체를 반환하는 것을 응용하면 구현 클래스를 공개하지 않고도 그 객체를 반환할 수 있어서, API(각 클래스에 대해서 설명해놓은 자료)를 작게 유지할 수 있다. API를 작게 유지하게 되면 어떤 점이 좋냐면, 다른 개발자들이 무언가를 만들 때 익혀야 할 API가 작아서 쉽게 배워서 사용할 수 있게 된다. 
+
+> 그럼 '구현 클래스를 공개하지 않고도 그 객체를 반환할 수 있다'라는 말이 무슨 말인지 밑의 예제 코드를 보면서 이해해보자.
+
+어떤 개발자가 score(점수)에 따라서 사용자에게 레벨(Basic, Intermediate, Advanced) 인스턴스를 구별해서 반환해주어야하는 로직을 구현해야 한다고 가정하자.
+
+### 정적 팩토리 메서드를 활용해서 API가 구성되어 있는 경우
+
+```java
+public class Level {
+  // 정적 팩토리 메서드
+  public static Level of(int score) {
+    if (score < 50) {
+      return new Basic();
+    } else if (score < 80) {
+      return new Intermediate();
+    } else {
+      return new Advanced();
+    }
+  }
+}
+
+class Advanced extends Level {
+}
+
+class Intermediate extends Level {
+}
+
+class Basic extends Level {
+}
+```
+
+API 문서에서 `Level` 클래스의 부분을 읽어보고, `of(int score)`라는 메서드를 사용하면 바로 이용하면 끝이다. 즉, `Advanced`, `Intermediate`, `Basic` 클래스에 대해서는 캡슐화가 되어서 객체 생성 인터페이스가 간단해졌다.
+
+### 정적 팩토리 메서드가 활용되어 있지 않은 경우
+
+```java
+public class Level {
+}
+
+public class Advanced extends Level {
+}
+
+public class Intermediate extends Level {
+}
+
+public class Basic extends Level {
+}
+```
+
+API 문서에서 Level, Advanced, Intermediate, Basic 클래스의 부분을 전부 이해해야 하고, 점수에 따라서 레벨 인스턴스를 반환하려고 할 때 매번 밑과 같은 로직을 반복해서 사용해야 한다. 중복이 일어날 가능성이 높으며, API 문서도 복잡해져서 다른 개발자들이 API 문서를 보고 사용하는 데에 난이도가 올라간다. 
+
+```java
+if (score < 50) {
+    return new Basic();
+} else if (score < 80) {
+    return new Intermediate();
+} else {
+    return new Advanced();
+}
+```
+
+> 결론적으로, 정적 팩토리 메서드를 활용하게 되면, '하나의 메서드'로만 반환할 객체를 조건에 따라 자동으로 선택되어 반환되게 할 수 있다.
+
+## 4. 입력 매개변수에 따라 매번 다른 클래스의 객체를 반환할 수 있다.
+
+```java
+class Fruit {
+    // 정적 팩토리 메서드
+    public static Fruit getFruit(String name) {
+        if ("Apple".equals(name)) {
+           return new Apple();
+        } else if ("Banana".equals(name)) {
+            return new Banana();
+        } else {
+            return new Strawberry();
+        }
+    }
+}
+
+class Apple extends Fruit { }
+
+class Banana extends Fruit { }
+
+class Strawberry extends Fruit { }
+
+public class Item1 {
+    // 입력 매개변수에 따라 매번 다른 클래스의 객체를 반환할 수 있습니다.
+    Fruit fruit = Fruit.getFruit("Banana");
+    System.out.println(fruit.getClass().getName());
+}
+```
+
+## 5. 클라이언트를 구현체로부터 분리해준다. 
+(정적 팩토리 메서드를 작성하는 시점에는 반환할 객체의 클래스가 존재하지 않아도 된다.)
+
+```java
+public class Level {
+    // 정적 팩토리 메서드
+    public static Level of(int score) {
+        return new Basic();
+    }
+}
+
+class Basic extends Level {
+}
+```
+
+위에서 `Level.of(int score)`라는 메서드의 구현체 부분을 클라이언트가 직접 구현하지 않도록 할 수 있게 함으로써 분리를 할 수 있다. 예를 들면, 클라이언트가 레벨을 얻는 로직을 구현해야 된다고 가정하자. 레벨을 산출하는 시스템이 달라짐에 따라서 매번 클라이언트가 로직을 수정하면 불편할 것이다. 하지만 위와 같은 정적 팩토리 메서드를 사용함으로써 밑과 같이 `Level.of(int score)`의 로직을 바꾸더라도 클라이언트는 그대로 수정 없이 동일한 메서드를 사용하면 된다. 이것이 바로 클라이언트를 구현체로부터 분리한 것이다. 이 덕분에 메서드는 그대로 유지한 채로, 구현체만 바꿔끼울 수 있는 것이다. 
+
+```java
+public class Level {
+    // 정적 팩토리 메서드
+    public static Level of(int score) {
+        if (score < 50) {
+            return new Basic();
+        } else if (score < 80) {
+            return new Intermediate();
+        } else {
+            return new Advanced();
+        }
+    }
+}
+
+class Basic extends Level {
+}
+```
+
+> 위와 같은 패턴이 왜 좋은 지를, 위 패턴을 사용하지 않았을 때의 상황을 밑의 코드들을 통해 살펴보자.
+
+```java
+// 특정 프레임 워크에서의 클래스 구조
+public class Level {
+}
+
+public class Basic extends Level {
+}
+```
+
+클라이언트가 위 프레임 워크를 활용해 밑과 같이 코드를 구현해놨다고 가정하자.
+
+```java
+// 클라이언트가 프레임워크를 사용해서 구현한 로직
+Level level = new Basic();
+```
+
+그런데 프레임워크를 만든 개발자가 밑과 같이 코드를 업데이트 했다. 
+
+```java
+// 특정 프레임 워크에서의 클래스 구조
+public class Level {
+}
+
+public class Basic extends Level {
+}
+
+public class Advanced extends Level {
+}
+
+public class Intermediate extends Level {
+}
+```
+
+클라이언트도 프레임워크가 업데이트 됨과 동시에 자신이 구현한 코드도 밑과 같이 수정해야 된다. 하지만 저렇게 구현한 부분이 1군데이면 저것만 고치면 되지만, 100군데라고 가정하면 일일이 수정하는 데 엄청 오래 걸릴 것이다.
+
+```java
+Level level;
+if (score < 50) {
+  level = new Basic();
+} else if (score < 80) {
+  level = new Intermediate();
+} else {
+  level = new Advanced();
+}
+```
+
+## 6. 상속을 하려면 public이나 protected 생성자가 필요하니, 정적 팩토리 메서드만 제공하면 하위 클래스를 만들 수 없다.
+
+위 문장의 의미를 풀어서 해석하면, '일반적으로 정적 팩토리 메서드는 `private` 생성자를 제공하므로 하위 클래스를 만들 수 없다'는 말이다. 정적 팩토리 메서드의 생성자는 `private`으로 처리하는 이유는, 정적 팩토리 메서드를 포함한 클래스 자체가 객체(인스턴스)를 만들 때 `public` 생성자를 사용하지 않고 정적 팩토리 메소드를 사용한다는 의도를 가지고 있기 때문이다. 만약 하나의 클래스에 `public` 생성자와 정적 팩토리 메소드를 한 번에 같이 포함하고 있다면 다른 개발자들이 그 클래스를 봤을 때 어떤 의도로 이 클래스가 생성되었는 지 파악하지 못할 것이다. 따라서 정적 팩토리 메서드를 제공하는 클래스는 `public`이나 `protectd` 생성자를 사용하지 않는 것이 일반적이다.
+
+위와 같은 규칙성으로 인해, 정적 팩토리 메서드를 가지고 있는 클래스에서는 `private` 생성자를 가지고 있을 것이다. 한편 상속을 하게되면 부모 클래스의 생성자를 뜻하는 `super()` 를 반드시 호출해야 한다. 하지만 정적 메소드를 가진 클래스의 생성자는 private으로 상속을 할 수 없다. 즉, 하위 클래스를 만들 수 없는 것이다. 
+
+따라서 정적 팩토리 메소드는 `상속`보다는 `컴포지션`을 사용하도록 유도한다. 이 점 때문에, '상속보다는 컴포지션을 사용해라'라는 통념에 부응하기 때문에 단점이 아닌 장점으로 인식된다. 
+
+# 유의할 점
+
+정적 팩터리 메서드는 생성자처럼 API 설명에 명확히 드러나지 않는다. (생성자는 해당 클래스의 이름과 동일한 이름을 가진 메서드이기 때문에 명확하게 드러나는 것이다. 명확하게 드러난다는 뜻은 개발자가 API 문서를 보고 쉽게 찾을 수 있다는 뜻이다.) 따라서 메서드 이름을 널리 알려진 규약에 따라 지음으로써 개발자들이 API 문서를 보고 쉽게 찾을 수 있도록 만들어야 한다. 
+
+### 정적 팩토리 메서드 명명 방식
+
+- `from` : **매개변수를 하나** 받아서 해당 타입의 인스턴스를 반환하는 형변환 메서드
+
+    ```java
+    Date d = Date.from(instant);
+    ```
+
+- `of` : **여러 매개변수**를 받아 적합한 타입의 인스턴스를 반환하는 집계 메서드
+
+    ```java
+    Set<Rank> faceCards = EnumSet.of(JACK, QUEEN, KING);
+    ```
+
+- `valueOf` : from, of 둘 다를 통칭하는 방식. from, of보다 조금 더 자세하게 명명한 것일 뿐이다.
+
+    ```java
+    BigInteger prime = BigInteger.valueOf(Integer.MAX_VALUE);
+    ```
+
+---
+
+- `instance`, `getInstance` : (매개변수를 받는다면) 매개변수로 명시한 인스턴스를 반환한다.
+
+    ```java
+    StackWalker luke = StackWalker.getInstance("apple");
+    ```
+
+    StackWalker 클래스에 속해있는 객체들 중에서, 인수가 "apple"일 때 반환하는 객체를 반환할 것이다.
+
+- `create`, `newInstance` : (매개변수를 받는다면) 매개변수로 명시한 인스턴스를 반환한다. 이 때, 매번 새로운 인스턴스를 생성해 반환함을 보장한다.
+
+    ```java
+    Object newArray = Array.newInstance(classObject, arrayLen);
+    ```
+
+---
+
+- `getType` : 생성할 클래스가 아닌 다른 클래스에 팩터리 메서드를 정의할 때 쓴다. 
+(여기서 말하는 `Type`은 팩터리 메서드가 반환할 객체의 타입 이름을 통틀어서 일컫는 말이다.)
+
+    ```java
+    FileStore fs = Files.getFileStore(path);
+    ```
+
+    '생성할 클래스가 아닌 다른 클래스'라는 말이 무슨말이냐면, getFileStore() 메서드가 존재하는 클래스의 이름은 FileStore가 아닌 것이다. 다른 종류의 클래스에 존재하고 있기 때문에 위와 같이 작성한 것이다.
+
+- `newType` : 생성할 클래스가 아닌 다른 클래스에 팩터리 메서드를 정의할 때 쓴다. 이 때, 매번 새로운 인스턴스를 생성해 반환함을 보장한다. 
+(여기서 말하는 `Type`은 팩터리 메서드가 반환할 객체의 타입 이름을 통틀어서 일컫는 말이다.)
+
+    ```java
+    BufferedReader br = Files.newBufferedReader(path);
+    ```
+
+- `type` :  `getType`, `newType`의 간결한 버전이다. 생성할 클래스가 아닌 다른 클래스에 팩터리 메서드를 정의할 때 쓴다.
+(여기서 말하는 `type`은 팩터리 메서드가 반환할 객체의 타입 이름을 통틀어서 일컫는 말이다.)
+
+    ```java
+    List<Complaint> litany = Collection.list(legacyLitancy);
+    ```
+
+    반환할 객체의 타입이 `list`이므로 메서드 이름을 `list()`라고 지은 것이다.
+
+---
+
+# 단점
+
+내로라할만한 단점을 아직 찾지 못했다. [Effective Java(이펙티브 자바) - 조슈아 블로크, 인사이트](http://www.kyobobook.co.kr/product/detailViewKor.laf?ejkGb=KOR&mallGb=KOR&barcode=9788966262281&orderClick=LEa&Kc=)에서는 '상속을 하려면 public이나 protected 생성자가 필요하니, 정적 팩토리 메서드만 제공하면 하위 클래스를 만들 수 없다.'와 '정적 팩터리 메서드는 프로그래머가 찾기 어렵다.'라는 걸 단점으로 얘기하고 있지만, 이에 대해서 해결책이 다 나와있거나 큰 문제점이 아니어서 단점으로 보기가 어렵다. 
+
+# 결론
+
+> 결론적으로, 되도록이면 생성자보다는 정적 팩토리 메서드를 사용할 것을 추천한다.
+
+# References
+
+- [Effective Java(이펙티브 자바) - 조슈아 블로크, 인사이트](http://www.kyobobook.co.kr/product/detailViewKor.laf?ejkGb=KOR&mallGb=KOR&barcode=9788966262281&orderClick=LEa&Kc=)
+- [정적 팩토리 메서드(static factory method)](https://johngrib.github.io/wiki/static-factory-method-pattern/)
+- [생성자 대신 정적 팩터리 메서드](https://donghyeon.dev/java/2020/10/25/%EC%83%9D%EC%84%B1%EC%9E%90-%EB%8C%80%EC%8B%A0-%EC%A0%95%EC%A0%81%ED%8C%A9%ED%84%B0%EB%A6%AC%EB%A9%94%EC%84%9C%EB%93%9C/)
+- [정적 팩토리 메서드는 왜 사용할까?](https://velog.io/@ljinsk3/%EC%A0%95%EC%A0%81-%ED%8C%A9%ED%86%A0%EB%A6%AC-%EB%A9%94%EC%84%9C%EB%93%9C%EB%8A%94-%EC%99%9C-%EC%82%AC%EC%9A%A9%ED%95%A0%EA%B9%8C)
+- [[EFFECTIVE JAVA] - 이펙티브자바 아이템1 생성자 대신 정적 팩터리 메서드를 고려하라](https://yhmane.tistory.com/134?category=905498)
+- [[Effective Java] 아이템1. 생성자 대신 정적 팩터리 메서드를 고려하라](https://ssoco.tistory.com/61)
+- [아이템 1. 생성자 대신 정적 팩토리 메서드를 고려하라](https://slf4me.com/post/effective-java/01/)
