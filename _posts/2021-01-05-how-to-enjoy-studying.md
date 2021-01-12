@@ -2,8 +2,8 @@
 layout: post
 title:  "질리지 않게, 재밌게 공부하는 방법"
 subtitle: "질리지 않게, 재밌게 공부하는 방법"
-categories: etc
-tags: habit
+categories: how-to-study
+tags: how-to-study
 comments: false
 ---
 공부에 있어서 꾸준함이 가장 중요하다. 꾸준하게 공부하려면 질리지 않게, 재밌게 공부하는 방법을 알아야 한다. 내가 하는 공부에 재미만 느낀다면 꾸준히 오랫동안 할 수 있게 되고, 이렇게만 한다면 잘해지는 건 시간 문제이다.
