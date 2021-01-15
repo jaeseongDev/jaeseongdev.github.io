@@ -1,0 +1,469 @@
+---
+layout: post
+title:  "[이펙티브 자바] 아이템 2. 생성자에 매개변수가 많다면 빌더를 고려하라."
+subtitle: "[이펙티브 자바] 아이템 2. 생성자에 매개변수가 많다면 빌더를 고려하라."
+categories: development
+tags: java
+comments: true
+---
+
+# 문제점
+
+**정적 팩토리, 생성자는 선택적 매개변수가 많을 때 적절하게 대응하기 어렵다.** 
+
+### 예시
+
+식품 포장의 영양정보를 표현하는 클래스를 생각해보자. 영양정보를 표현하는 클래스를 생각해보자. 영양정보는 1회 내용량, 총 n회 제공량, 1회 제공량당 칼로리 같은 필수 항목 몇 개와 총 지방, 트랜스 지방, 포화지방, 콜레스테롤, 나트륨 등 총 20개가 넘는 선택 항목으로 이뤄진다. 그런ㄴ데 대부분 제품은 이 선택항목 중 대다수의 값이 그냥 0이다. 
+
+```java
+public class NutritionFacts {
+    private final int servingSize;
+    private final int servings;
+    private final int calories;
+    private final int fat;
+    private final int sodium;
+    private final int carbohydrate;
+
+    public NutritionFacts(int servingSize, int servings, int calories, int fat, int sodium, int carbohydrate) {
+        this.servingSize = servingSize;
+        this.servings = servings;
+        this.calories = calories;
+        this.fat = fat;
+        this.sodium = sodium;
+        this.carbohydrate = carbohydrate;
+    }
+}
+```
+
+이로 인해 밑의 코드처럼 객체를 생성할 때, 선택 항목에 대해서도 매번 `0`이라는 값을 귀찮네 일일이 넣어주어야 한다. 
+
+```java
+new NutritionFacts(30, 10, 0, 0, 0, 0);
+new NutritionFacts(30, 10, 5, 0, 0, 0);
+```
+
+# 해결책
+
+## 1. 점층적 생성자 패턴 (비추천)
+
+각 생성자의 매개변수 개수를 다르게 만들어, 여러 개의 생성자를 만드는 방식이다. 
+
+### 예시
+
+```java
+public class NutritionFacts {
+    private final int servingSize;
+    private final int servings;
+    private final int calories;
+    private final int fat;
+    private final int sodium;
+    private final int carbohydrate;
+
+    public NutritionFacts(int servingSize, int servings) {
+        this(servingSize, servings, 0);
+    }
+
+    public NutritionFacts(int servingSize, int servings, int calories) {
+        this(servingSize, servings, calories, 0);
+    }
+
+    public NutritionFacts(int servingSize, int servings, int calories, int fat) {
+        this(servingSize, servings, calories, fat, 0);
+    }
+
+    public NutritionFacts(int servingSize, int servings, int calories, int fat, int sodium) {
+        this(servingSize, servings, calories, fat, sodium, 0);
+    }
+
+    public NutritionFacts(int servingSize, int servings, int calories, int fat, int sodium,
+        int carbohydrate) {
+        this.servingSize = servingSize;
+        this.servings = servings;
+        this.calories = calories;
+        this.fat = fat;
+        this.sodium = sodium;
+        this.carbohydrate = carbohydrate;
+    }
+}
+```
+
+### 단점
+
+- 매개변수가 많아지면 많아질수록 코드의 양이 엄청 많아진다.
+- 가독성이 떨어진다.
+- 타입이 같은 매개변수가 늘어서 있으면 찾기 어려운 버그로 이어질 수 있다.
+
+## 2. 자바빈즈 패턴 (비추천)
+
+매개변수가 없는 생성자로 객체를 만든 후, 세터(setter) 메서드들을 호출해서 원하는 매개변수의 값을 설정하는 방식이다.
+
+### 예시
+
+```java
+public class NutritionFacts {
+    private int servingSize = -1;
+    private int servings = -1;
+    private int calories = 0;
+    private int fat = 0;
+    private int sodium = 0;
+    private int carbohydrate = 0;
+    
+    public NutritionFacts() { };
+    
+    public void setServingSize(int val) {
+        servingSize = val;
+    }
+    
+    public void setServings(int val) {
+        servings = val;
+    }
+    
+    public void setCalories(int val) {
+        calories = val;
+    }
+    
+    public void setFat(int val) {
+        fat = val;
+    }
+    
+    public void setSodium(int val) {
+        sodium = val;
+    }
+    
+    public void setCarbohydrate(int val) {
+        carbohydrate = val;
+    }
+}
+```
+
+```java
+NutritionFacts cocaCola = new NutritionFacts();
+cocaCola.setServingSize(240);
+cocaCola.setServings(8);
+cocaCola.setCalories(100);
+cocaCola.setSodium(35);
+cocaCola.setCarbohydrate(27);
+```
+
+### 장점
+
+점층적 생성자 패턴의 단점들을 전부 보완했다. 
+
+### 단점
+
+- 객체 하나늘 만드려면 메서드를 여러 개(`setServingSize`, `setServings`, `setCalories`, `setSodium`, `setCarbohydrate`)를 호출해야 한다.
+- 객체가 완전히 생성되기 전까지는 일관성이 무너진 상태에 놓이게 된다. 여기서 '객체가 완전히 생성되기 전'이라는 말은 위 코드에서 `setServingSize`, `setServings`, `setCalories`, `setSodium`, `setCarbohydrate`의 메서드를 다 호출해야만 속성들이 다 설정되는 것인데, 이 메서드들을 다 호출하지 않았을 때를 '객체가 완전히 생성되기 전'이라고 말하는 것이다. 즉, 일관성이 무너진 상태이다. 일관성이 깨지게 되면 버그가 발생하기 쉽다.
+- 일관성이 보장되지 않는 문제 때문에, 자바빈즈 패턴에서는 클래스를 불변으로 만들 수 없다.
+
+## 3. 빌더 패턴 (추천)
+
+1) 클라이언트는 필요한 객체를 직접 만드는 대신, 필수 매개변수만으로 생성자(혹은 정적 팩터리)를 호출해 빌더 객체를 얻는다. 
+
+2) 빌더 객체가 제공하는 일종의 세터(setter) 메서드들로 원하는 선택 매개변수들을 설정한다. 
+
+3) 매개변수가 없는 build 메서드를 호출해 드디어 우리에게 필요한 (보통은 불변인) 객체를 얻는다. 
+
+### 예시
+
+```java
+public class NutritionFacts {
+    private final int servingSize;
+    private final int servings;
+    private final int calories;
+    private final int fat;
+    private final int sodium;
+    private final int carbohydrate;
+    
+    // 정적 멤버 클래스
+    public static class Builder {
+        // 필수 매개변수
+        private final int servingSize;
+        private final int servings;
+
+        // 선택 매개변수 (+ 기본값으로 초기화)
+        private int calories = 0;
+        private int fat = 0;
+        private int sodium = 0;
+        private int carbohydrate = 0;
+
+        public Builder(int servingSize, int servings) {
+            this.servingSize = servingSize;
+            this.servings = servings;
+        }
+
+        public Builder calories(int val) {
+            calories = val;
+            return this;
+        }
+
+        public Builder fat(int val) {
+            fat = val;
+            return this;
+        }
+
+        public Builder sodium(int val) {
+            sodium = val;
+            return this;
+        }
+
+        public Builder carbohydrate(int val) {
+            carbohydrate = val;
+            return this;
+        }
+
+        public NutritionFacts build() {
+            return new NutritionFacts(this);
+        }
+    }
+    
+    private NutritionFacts(Builder builder) {
+        servingSize = builder.servingSize;
+        servings = builder.servings;
+        calories = builder.calories;
+        fat = builder.fat;
+        sodium = builder.sodium;
+        carbohydrate = builder.carbohydrate;
+    }
+}
+```
+
+### 빌더 패턴을 만드려면
+
+1. 생성자를 통해 객체(`NutritionFacts`)를 최초 생성했을 때 속성(매개변수)을 빠트리지 않고 대입하기 위해서이고, 속성(매개변수)에 값을 재할당하는 것을 방지하기 위해 `final`을 사용해서 변수를 선언한다.
+
+```
+public class NutritionFacts {
+    private final int servingSize;
+    private final int servings;
+    private final int calories;
+    private final int fat;
+    private final int sodium;
+    private final int carbohydrate;
+    ...
+}
+```
+
+2. 만들고자 하는 객체(`NutritionFacts`) 내에 `Builder`라는 정적 멤버 클래스로 만들어야 한다. 
+
+```
+public class NutritionFacts {
+    private final int servingSize;
+    private final int servings;
+    private final int calories;
+    private final int fat;
+    private final int sodium;
+    private final int carbohydrate;
+
+    // 정적 멤버 클래스
+    public static class Builder {...}
+    ...
+}
+```
+
+3. 필수 매개변수와 선택 매개변수(+기본값 설정)를 구별하기 위해서, `Builder` 정적 멤버 클래스에서 `final`을 활용해서 구별하면 된다. 
+
+```
+public class NutritionFacts {
+    private final int servingSize;
+    private final int servings;
+    private final int calories;
+    private final int fat;
+    private final int sodium;
+    private final int carbohydrate;
+
+    // 정적 멤버 클래스
+    public static class Builder {
+        // 필수 매개변수
+        private final int servingSize;
+        private final int servings;
+
+        // 선택 매개변수 (+ 기본값으로 초기화)
+        private int calories = 0;
+        private int fat = 0;
+        private int sodium = 0;
+        private int carbohydrate = 0;**
+    }
+    ...
+}
+```
+
+4. 필수 매개변수에 값을 대입하는 `Builder` 생성자를 만든다. 
+
+```
+public class NutritionFacts {
+    private final int servingSize;
+    private final int servings;
+    private final int calories;
+    private final int fat;
+    private final int sodium;
+    private final int carbohydrate;
+
+    // 정적 멤버 클래스
+    public static class Builder {
+        // 필수 매개변수
+        private final int servingSize;
+        private final int servings;
+
+        // 선택 매개변수 (+ 기본값으로 초기화)
+        private int calories = 0;
+        private int fat = 0;
+        private int sodium = 0;
+        private int carbohydrate = 0;
+    }
+        
+    // 필수 매개변수를 생성하는 생성자
+    public Builder(int servingSize, int servings) {
+        this.servingSize = servingSize;
+        this.servings = servings;
+    }
+    ...
+}
+```
+
+5. 선택 매개변수에 값을 대입하는 메서드들을 `Builder` 정적 멤버 클래스에 만들어야 한다. 
+
+```
+public class NutritionFacts {
+    private final int servingSize;
+    private final int servings;
+    private final int calories;
+    private final int fat;
+    private final int sodium;
+    private final int carbohydrate;
+
+    // 정적 멤버 클래스
+    public static class Builder {
+        // 필수 매개변수
+        private final int servingSize;
+        private final int servings;
+
+        // 선택 매개변수 (+ 기본값으로 초기화)
+        private int calories = 0;
+        private int fat = 0;
+        private int sodium = 0;
+        private int carbohydrate = 0;
+
+        // 필수 매개변수를 생성하는 생성자
+        public Builder(int servingSize, int servings) {
+            this.servingSize = servingSize;
+            this.servings = servings;
+        }
+
+        public Builder calories(int val) {
+            calories = val;
+            return this;
+        }
+    
+        public Builder fat(int val) {
+            fat = val;
+            return this;
+        }
+    
+        public Builder sodium(int val) {
+            sodium = val;
+            return this;
+        }
+    
+        public Builder carbohydrate(int val) {
+            carbohydrate = val;
+            return this;
+        }
+    }
+    ...
+}
+```
+
+빌더의 세터 메서드들(`calories`, `fat`, `sodium`, `carbohydrate`)은 `Builder` 인스턴스 자신(`this`)을 그대로 반환하기 때문에 밑의 코드와 같이 연쇄적으로 호출할 수 있다. 이런 방식을 메서드 호출이 흐르듯 연결된다는 뜻으로 플루언트 API(fluent API) 혹은 메서드 연쇄(method chaining)라 한다. 
+
+```java
+NutritionFacts cocaCola = new NutritionFacts.Builder(240, 8).calories(100).sodium(35).carbohydrate(27).build();
+```
+
+위의 코드에서도 볼 수 있다시피, 코드 작성이 쉽고 가독성이 좋다. 
+
+6. `Builder`를 통해 최종적으로 다 만들어진 `NutritionFacts` 객체를 반환하는 `build` 메서드를 만든다. 이렇게 만들어진 인스턴스는 매개변수를 변경하지 못하는 불변의 인스턴스이다. 
+
+```
+public class NutritionFacts {
+    private final int servingSize;
+    private final int servings;
+    private final int calories;
+    private final int fat;
+    private final int sodium;
+    private final int carbohydrate;
+
+    // 정적 멤버 클래스
+    public static class Builder {
+        // 필수 매개변수
+        private final int servingSize;
+        private final int servings;
+
+        // 선택 매개변수 (+ 기본값으로 초기화)
+        private int calories = 0;
+        private int fat = 0;
+        private int sodium = 0;
+        private int carbohydrate = 0;
+
+        // 필수 매개변수를 생성하는 생성자
+        public Builder(int servingSize, int servings) {
+                this.servingSize = servingSize;
+                this.servings = servings;
+        }
+    
+        public Builder calories(int val) {
+            calories = val;
+            return this;
+        }
+    
+        public Builder fat(int val) {
+            fat = val;
+            return this;
+        }
+    
+        public Builder sodium(int val) {
+            sodium = val;
+            return this;
+        }
+    
+        public Builder carbohydrate(int val) {
+            carbohydrate = val;
+            return this;
+        }
+
+        public NutritionFacts build() {
+            return new NutritionFacts(this);
+        }
+    }
+
+        private NutritionFacts(Builder builder) {
+            servingSize = builder.servingSize;
+            servings = builder.servings;
+            calories = builder.calories;
+            fat = builder.fat;
+            sodium = builder.sodium;
+            carbohydrate = builder.carbohydrate;
+    }
+}
+```
+
+7. 유효성 검사 추가하기
+    - 빌더의 생성자(`public Builder(...){...}`)와 빌더의 메서드(`calroies`, `fat`, `sodium`, `carbohydrate`)에서 입력 매개변수에 대해서 검사할 수 있다.
+
+### 장점
+
+점층적 생성자 패턴고 자바빈즈 패턴의 장점만 취했다. 
+
+- API를 보고 코드를 사용하는 클라이언트 입장에서, 코드는 작성하기 쉽고 가독성이 좋다.
+
+### 단점
+
+- 객체를 만들려면, 그에 앞서 빌더(Builder) 정적 멤버 클래스부터 만들어야 한다. 빌더 생성 비용이 크지는 않지만 성능에 민감한 상황에서는 문제가 될 수 있다.
+- 점층적 생성자 패턴보다는 코드가 장황해서 매개변수가 4개 이상은 되어야 값어치를 한다. 하지만 API는 시간이 지날수록 매개변수가 많아지는 경향이 있음을 명심하자. 생성자나 정적 팩터리 방식으로 시작했다가 나중에 매개변수가 많아지면 빌더 패턴으로 전환할 수도 있지만, 이전에 만들어둔 생성자와 정적 팩터리가 아주 도드라져 보일 것이다. 그러니 애초에 빌더로 시작하는 편이 나을 때가 많다.
+
+# 결론
+
+**생성자나 정적 팩터리가 처리해야 할 매개변수가 많다면 빌더 패턴을 선택하는 게 더 낫다.** 매개변수 중 다수가 필수가 아닌 선택인 경우가 많고, 매개변수들끼리 같은 타입인 것이 많다면 특히 더 그렇다. 빌더는 점층적 생성자보다 클라이언트 코드를 읽고 쓰기가 훨씬 간결하고, 자바빈즈 패턴보다 훨씬 안전하다. 
+
+# References
+
+- [Effective Java(이펙티브 자바) - 조슈아 블로크, 인사이트](http://www.kyobobook.co.kr/product/detailViewKor.laf?ejkGb=KOR&mallGb=KOR&barcode=9788966262281&orderClick=LEa&Kc=)
