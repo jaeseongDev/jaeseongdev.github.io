@@ -4,7 +4,7 @@ title: "파이썬 코딩의 기술 (Effective Python) 정리"
 subtitle: "파이썬 코딩의 기술 (Effective Python) 정리"
 categories: development
 tags: python
-comments: true
+comments: false
 ---
 파이썬 코딩의 기술 책을 읽고 정리한 문서입니다
 

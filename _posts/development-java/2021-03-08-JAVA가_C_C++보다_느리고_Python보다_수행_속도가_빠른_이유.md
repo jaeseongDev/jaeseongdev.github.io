@@ -4,7 +4,7 @@ title:  "Java가 C, C++보다 느리고, Python보다 수행 속도가 빠른 �
 subtitle: "Java가 C, C++보다 느리고, Python보다 수행 속도가 빠른 이유"
 categories: development
 tags: java
-comments: true
+comments: false
 ---
 
 **일괄 컴파일 방식 언어인 C, C++**의 코드는 컴파일만 하면 바로 CPU에서 실행이 가능한 코드인 기계어(native code)로 변환된다. 그래서 수행속도가 빠르다.  

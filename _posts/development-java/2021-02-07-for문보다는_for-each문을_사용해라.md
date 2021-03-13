@@ -4,7 +4,7 @@ title:  "for문보다는 for-each문을 사용해라."
 subtitle: "for문보다는 for-each문을 사용해라."
 categories: development
 tags: java
-comments: true
+comments: false
 ---
 
 # for문의 단점

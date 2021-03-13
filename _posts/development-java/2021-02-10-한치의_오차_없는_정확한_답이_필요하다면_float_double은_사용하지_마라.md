@@ -4,7 +4,7 @@ title:  "한치의 오차 없는 정확한 답이 필요하다면 float, double�
 subtitle: "한치의 오차 없는 정확한 답이 필요하다면 float, double은 사용하지 마라."
 categories: development
 tags: java
-comments: true
+comments: false
 ---
 
 ## float, double은 오차가 발생한다.

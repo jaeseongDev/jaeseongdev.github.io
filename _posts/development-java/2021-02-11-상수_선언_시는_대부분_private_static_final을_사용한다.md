@@ -4,7 +4,7 @@ title:  "상수 선언 시는 대부분 private static final을 사용한다. (+
 subtitle: "상수 선언 시는 대부분 private static final을 사용한다. (+ static을 같이 붙이는 이유)"
 categories: development
 tags: java
-comments: true
+comments: false
 ---
 
 # 상수 선언 시 private static final 사용

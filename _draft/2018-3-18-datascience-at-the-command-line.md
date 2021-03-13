@@ -4,7 +4,7 @@ title:  "데이터 사이언스에서 Command Line 사용하기"
 subtitle:   "데이터 사이언스에서 Command Line 사용하기"
 categories: development
 tags: linux
-comments: true
+comments: false
 ---
 데이터 사이언스에서 커맨드 라인(쉘 스크립트)을 사용하는 것에 대해 작성한 글입니다.
 
