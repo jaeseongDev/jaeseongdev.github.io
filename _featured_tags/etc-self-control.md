@@ -4,5 +4,5 @@ title: Self control
 slug: self-control
 category: etc
 menu: false
-order: 4
+order: 1
 ---
